@@ -52,7 +52,7 @@
 //     rng: object of random number generator
 //     low: lowest (signed) integers to be drawn from the distribution, optional
 //     high: one above the largest (signed) integer to be drawn from the distribution, optional
-//     size: returned array size, optional
+//     size: returned array size, must be positive integer, optional
 //     endpoint: if true, sample from the interval [low, high] instead of the default [low, high), optional
 //
 // Returns:
@@ -85,7 +85,7 @@
 //
 // Arguments:
 //     rng: object of random number generator
-//     size: returned array size, optional
+//     size: returned array size, must be positive integer, optional
 //
 // Returns:
 //     array of (rng, arr)
@@ -115,7 +115,7 @@
 //     rng: object of random number generator
 //     low: lower boundary of the output interval, optional
 //     high: upper boundary of the output interval, optional
-//     size: returned array size, optional
+//     size: returned array size, must be positive integer, optional
 //
 // Returns:
 //     array of (rng, arr)
@@ -145,7 +145,7 @@
 //     rng: object of random number generator
 //     loc: float, mean (centre) of the distribution, optional
 //     scale: float, standard deviation (spread or width) of the distribution, must be non-negative, optional
-//     size: returned array size, optional
+//     size: returned array size, must be positive integer, optional
 //
 // Returns:
 //     array of (rng, arr)
@@ -219,7 +219,7 @@
 // Arguments:
 //     rng: object of random number generator
 //     arr: the array to be sampled
-//     size: returned array size, optional
+//     size: returned array size, must be positive integer, optional
 //     replacement: whether the sample is with or without replacement, optional; default is true, meaning that a value of arr can be selected multiple times.
 //     permutation: whether the sample is permuted when sampling without replacement, optional; default is true, false provides a speedup.
 //
@@ -245,7 +245,7 @@
       a.push(arr.at(val))
     }
   } else { // Sample without replacement
-    assert(size <= n, message: "`size` should no more than input array size when `replacement` is false")
+    assert(size <= n, message: "`size` should be no more than input array size when `replacement` is false")
 
     let i = 0
     let j = 0

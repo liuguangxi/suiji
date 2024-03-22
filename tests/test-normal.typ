@@ -18,7 +18,7 @@
   print-arr(arr); parbreak()
 
   let n = 10000
-  [Generate #n normal numbers with N(5.0, 10.0). \ ]
+  [Generate #n normal numbers $~ N(5.0, 10.0^2)$. \ ]
   (rng, arr) = normal(rng, loc: 5.0, scale: 10.0, size: n)
   let mean = 0
   let std = 0

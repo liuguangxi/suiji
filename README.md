@@ -150,7 +150,7 @@ Return random integers from `low` (inclusive) to `high` (exclusive).
   - `rng` : [`object`] object of random number generator.
   - `low` : [`int`] lowest (signed) integers to be drawn from the distribution, optional.
   - `high` : [`int`] one above the largest (signed) integer to be drawn from the distribution, optional.
-  - `size` : [`int`] returned array size, optional.
+  - `size` : [`int`] returned array size, must be positive integer, optional.
   - `endpoint` : [`bool`] if true, sample from the interval [`low`, `high`] instead of the default [`low`, `high`), optional.
 
 - **Output Arguments**
@@ -169,7 +169,7 @@ Return random floats in the half-open interval [0.0, 1.0).
 
 - **Input Arguments**
   - `rng` : [`object`] object of random number generator.
-  - `size` : [`int`] returned array size, optional.
+  - `size` : [`int`] returned array size, must be positive integer, optional.
 
 - **Output Arguments**
   - [`array`] : (`rng-out`, `arr-out`)
@@ -189,7 +189,7 @@ Draw samples from a uniform distribution. Samples are uniformly distributed over
   - `rng` : [`object`] object of random number generator.
   - `low` : [`float`] lower boundary of the output interval, optional.
   - `high` : [`float`] upper boundary of the output interval, optional.
-  - `size` : [`int`] returned array size, optional.
+  - `size` : [`int`] returned array size, must be positive integer, optional.
 
 - **Output Arguments**
   - [`array`] : (`rng-out`, `arr-out`)
@@ -207,8 +207,8 @@ Draw random samples from a normal (Gaussian) distribution.
 
 - **Input Arguments**
   - `rng` : [`object`] object of random number generator.
-  - `loc` : [`float`] float, mean (centre) of the distribution, optional.
-  - `scale` : [`float`] float, standard deviation (spread or width) of the distribution, must be non-negative, optional.
+  - `loc` : [`float`] mean (centre) of the distribution, optional.
+  - `scale` : [`float`] standard deviation (spread or width) of the distribution, must be non-negative, optional.
   - `size` : [`int`] returned array size, must be positive integer, optional.
 
 - **Output Arguments**
