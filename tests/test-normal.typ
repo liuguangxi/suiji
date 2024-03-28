@@ -17,6 +17,12 @@
   let rng = gen-rng(42)
   let arr = ()
 
+  (rng, arr) = normal(rng)
+  raw(repr(arr)); parbreak()
+
+  (rng, arr) = normal(rng, size: 1)
+  raw(repr(arr)); parbreak()
+
   (rng, arr) = normal(rng, size: 100)
   print-arr(arr); parbreak()
 

@@ -17,6 +17,12 @@
   let rng = gen-rng(42)
   let arr = ()
 
+  (rng, arr) = uniform(rng)
+  raw(repr(arr)); parbreak()
+
+  (rng, arr) = uniform(rng, size: 1)
+  raw(repr(arr)); parbreak()
+
   (rng, arr) = uniform(rng, low: -1.0, high: 1.0, size: 100)
   print-arr(arr); parbreak()
 

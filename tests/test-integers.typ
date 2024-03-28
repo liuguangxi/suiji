@@ -28,6 +28,15 @@
   }
   parbreak()
 
+  (rng, arr) = integers(rng, low: 0, high: 10)
+  raw(repr(arr)); parbreak()
+
+  (rng, arr) = integers(rng, low: 0, high: 10, size: none)
+  raw(repr(arr)); parbreak()
+
+  (rng, arr) = integers(rng, low: 0, high: 10, size: 1)
+  raw(repr(arr)); parbreak()
+
   rng = gen-rng(42)
   (rng, arr) = integers(rng, low: 0, high: 100, size: n, endpoint: true)
   print-arr(arr); parbreak()

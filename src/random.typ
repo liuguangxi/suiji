@@ -53,28 +53,29 @@
 //     rng: object of random number generator
 //     low: lowest (signed) integers to be drawn from the distribution, optional
 //     high: one above the largest (signed) integer to be drawn from the distribution, optional
-//     size: returned array size, must be positive integer, optional
+//     size: returned array size, must be none or positive integer, optional
 //     endpoint: if true, sample from the interval [low, high] instead of the default [low, high), optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random numbers
-#let integers(rng, low: 0, high: 100, size: 1, endpoint: false) = {
-  assert(type(size) == int and size >= 1, message: "`size` should be positive")
+#let integers(rng, low: 0, high: 100, size: none, endpoint: false) = {
+  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
 
+  let n = if size == none {1} else {size}
   let gap = high - low
   if endpoint {gap += 1}
   assert(gap >= 1 and gap <= 0xFFFFFFFF, message: "invalid range between `low` and `high`")
 
   let val = 0
   let a = ()
-  for i in range(size) {
+  for i in range(n) {
     (rng, val) = _uniform-int(rng, gap)
     a.push(val + low)
   }
 
-  if size == 1 {
+  if size == none {
     return (rng, a.at(0))
   } else {
     return (rng, a)
@@ -86,23 +87,24 @@
 //
 // Arguments:
 //     rng: object of random number generator
-//     size: returned array size, must be positive integer, optional
+//     size: returned array size, must be none or positive integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random numbers
-#let random(rng, size: 1) = {
-  assert(type(size) == int and size >= 1, message: "`size` should be positive")
+#let random(rng, size: none) = {
+  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
 
+  let n = if size == none {1} else {size}
   let val = 0
   let a = ()
-  for i in range(size) {
+  for i in range(n) {
     (rng, val) = taus-get-float(rng)
     a.push(val)
   }
 
-  if size == 1 {
+  if size == none {
     return (rng, a.at(0))
   } else {
     return (rng, a)
@@ -116,23 +118,24 @@
 //     rng: object of random number generator
 //     low: lower boundary of the output interval, optional
 //     high: upper boundary of the output interval, optional
-//     size: returned array size, must be positive integer, optional
+//     size: returned array size, must be none or positive integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random numbers
-#let uniform(rng, low: 0.0, high: 1.0, size: 1) = {
-  assert(type(size) == int and size >= 1, message: "`size` should be positive")
+#let uniform(rng, low: 0.0, high: 1.0, size: none) = {
+  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
 
+  let n = if size == none {1} else {size}
   let val = 0
   let a = ()
-  for i in range(size) {
+  for i in range(n) {
     (rng, val) = taus-get-float(rng)
     a.push(low * (1 - val) + high * val)
   }
 
-  if size == 1 {
+  if size == none {
     return (rng, a.at(0))
   } else {
     return (rng, a)
@@ -146,22 +149,23 @@
 //     rng: object of random number generator
 //     loc: float, mean (centre) of the distribution, optional
 //     scale: float, standard deviation (spread or width) of the distribution, must be non-negative, optional
-//     size: returned array size, must be positive integer, optional
+//     size: returned array size, must be none or positive integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random numbers
-#let normal(rng, loc: 0.0, scale: 1.0, size: 1) = {
-  assert(type(size) == int and size >= 1, message: "`size` should be positive")
+#let normal(rng, loc: 0.0, scale: 1.0, size: none) = {
+  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
   assert(scale >= 0, message: "`scale` should be non-negative")
 
+  let n = if size == none {1} else {size}
   let x = 0
   let y = 0
   let r2 = 0
   let val = 0
   let a = ()
-  for i in range(size) {
+  for i in range(n) {
     while true {
       // Choose x and y in uniform square (-1,-1) to (+1,+1)
       (rng, val) = taus-get-float(rng)
@@ -178,7 +182,7 @@
     a.push(loc + scale * y * calc.sqrt(-2.0 * calc.ln(r2) / r2));
   }
 
-  if size == 1 {
+  if size == none {
     return (rng, a.at(0))
   } else {
     return (rng, a)
@@ -273,19 +277,20 @@
 // Arguments:
 //     rng: object of random number generator
 //     g: generated object that contains the lookup table by `discrete-preproc` function
-//     size: returned array size, must be positive integer, optional
+//     size: returned array size, must be none or positive integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random indices
-#let discrete(rng, g, size: 1) = {
-  assert(type(size) == int and size >= 1, message: "`size` should be positive")
+#let discrete(rng, g, size: none) = {
+  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
 
+  let n = if size == none {1} else {size}
   let u = 0
   let a = ()
 
-  for i in range(size) {
+  for i in range(n) {
     (rng, u) = taus-get-float(rng)
     let c = calc.floor(u * g.K)
     let f = g.F.at(c)
@@ -298,7 +303,7 @@
     }
   }
 
-  if size == 1 {
+  if size == none {
     return (rng, a.at(0))
   } else {
     return (rng, a)
@@ -319,12 +324,12 @@
 #let shuffle(rng, arr) = {
   assert(type(arr) == array, message: "`arr` should be arrry type")
 
-  let size = arr.len()
-  assert(size >= 1, message: "size of `arr` should be positive")
-  if size == 1 {return (rng, arr)}
+  let n = arr.len()
+  assert(n >= 1, message: "size of `arr` should be positive")
+  if n == 1 {return (rng, arr)}
 
   let j = 0
-  for i in range(size - 1, 0, step: -1) {
+  for i in range(n - 1, 0, step: -1) {
     (rng, j) = _uniform-int(rng, i + 1)
     if i != j {
       (arr.at(i), arr.at(j)) = (arr.at(j), arr.at(i))
@@ -348,31 +353,32 @@
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: generated random samples
-#let choice(rng, arr, size: 1, replacement: true, permutation: true) = {
+#let choice(rng, arr, size: none, replacement: true, permutation: true) = {
   assert(type(arr) == array, message: "`arr` should be arrry type")
-  assert(type(size) == int and size >= 1, message: "`size` should be positive")
+  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
   assert(type(replacement) == bool, message: "`replacement` should be boolean")
   assert(type(permutation) == bool, message: "`permutation` should be boolean")
 
   let n = arr.len()
   assert(n >= 1, message: "size of `arr` should be positive")
+  let n-out = if size == none {1} else {size}
 
   let val = 0
   let a = ()
 
   if replacement {    // sample with replacement
-    for i in range(size) {
+    for i in range(n-out) {
       (rng, val) = _uniform-int(rng, n)
       a.push(arr.at(val))
     }
   } else {    // sample without replacement
-    assert(size <= n, message: "`size` should be no more than input array size when `replacement` is false")
+    assert(n-out <= n, message: "`size` should be no more than input array size when `replacement` is false")
 
     let i = 0
     let j = 0
-    while i < n and j < size {
+    while i < n and j < n-out {
       (rng, val) = taus-get-float(rng)
-      if (n - i) * val < size - j {
+      if (n - i) * val < n-out - j {
         a.push(arr.at(i))
         j += 1
       }
@@ -383,7 +389,7 @@
     }
   }
 
-  if size == 1 {
+  if size == none {
     return (rng, a.at(0))
   } else {
     return (rng, a)

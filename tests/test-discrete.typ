@@ -20,6 +20,10 @@
   let p = (1,)
   let g = discrete-preproc(p)
   [#g \ ]
+  (rng, arr) = discrete(rng, g)
+  raw(repr(arr)); [ \ ]
+  (rng, arr) = discrete(rng, g, size: 1)
+  raw(repr(arr)); [ \ ]
   (rng, arr) = discrete(rng, g, size: 10)
   print-arr(arr); parbreak()
 
