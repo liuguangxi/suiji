@@ -1,6 +1,11 @@
+#set document(date: none)
+
+
 #import "/src/lib.typ": *
 
+
 #set page(width: auto, height: auto, margin: 0.5cm)
+
 
 #{
   let rng = gen-rng(42)

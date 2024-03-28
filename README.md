@@ -1,6 +1,6 @@
 # Suiji
 
-[Suiji](https://github.com/liuguangxi/suiji) (随机 in Chinese, /suíjī/, meaning random) is a high efficient random number generator in Typst. Partial algorithm is inherited from [GSL](https://www.gnu.org/software/gsl) and most APIs are similar to [NumPy Random Generator](https://numpy.org/doc/stable/reference/random/generator.html). It provides pure function implementation and does not rely on any global state variable, resulting in better performance and independency.
+[Suiji](https://github.com/liuguangxi/suiji) (随机 in Chinese, /suíjī/, meaning random) is a high efficient random number generator in Typst. Partial algorithm is inherited from [GSL](https://www.gnu.org/software/gsl) and most APIs are similar to [NumPy Random Generator](https://numpy.org/doc/stable/reference/random/generator.html). It provides pure function implementation and does not rely on any global state variables, resulting in better performance and independency.
 
 
 ## Features
@@ -17,7 +17,7 @@
 The example below uses `suiji` and `cetz` packages to create a trajectory of a random walk.
 
 ```typ
-#import "@preview/suiji:0.2.0": *
+#import "@preview/suiji:0.2.1": *
 #import "@preview/cetz:0.2.2"
 
 #set page(width: auto, height: auto, margin: 0.5cm)
@@ -48,7 +48,7 @@ The example below uses `suiji` and `cetz` packages to create a trajectory of a r
 Another example is drawing the the famous **Matrix** rain effect of falling green characters in a terminal.
 
 ```typ
-#import "@preview/suiji:0.2.0": *
+#import "@preview/suiji:0.2.1": *
 #import "@preview/cetz:0.2.2"
 
 #set page(width: auto, height: auto, margin: 0pt)
@@ -93,15 +93,13 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
 
 ## Usage
 
-Import `suiji` module first before use any random function from it.
+Import `suiji` module first before use any random functions from it.
 
 ```typ
-#import "@preview/suiji:0.2.0": *
+#import "@preview/suiji:0.2.1": *
 ```
 
-At first, a random number generator object (**rng**) should be created by function `gen-rng`, with an integer as the argument of seed.
-
-Other functions have a similar usage style. The object of **rng** and other parameters are provided as input arguments, and the function return value is an array of _two_ objects, where the first one is an updated object **rng** and the second one is the desired value. It seems a little inconvenient, as limited by the programming paradigm.
+For functions that generate various random numbers or randomly shuffle, a random number generator object (**rng**) is required as both input and output arguments. And the original **rng** should be created by function `gen-rng`, with an integer as the argument of seed. This calling style seems to be a little inconvenient, as it is limited by the programming paradigm. For function `discrete`, the given probalilities of the discrete events should be preprocessed by function `discrete-preproc`, whose output serves as an input argument of `discrete`.
 
 The code below generates several random permutations of 0 to 9. Each time after function `shuffle` is called, the value of variable `rng` is updated, so generated permutations are different.
 
@@ -118,7 +116,7 @@ The code below generates several random permutations of 0 to 9. Each time after 
 
 ![random-permutation](./examples/random-permutation.png)
 
-For more codes with these functions refer to [tests](./tests).
+For more codes with these functions see [tests](./tests).
 
 
 ## Reference
@@ -215,6 +213,35 @@ Draw random samples from a normal (Gaussian) distribution.
   - [`array`] : (`rng-out`, `arr-out`)
     - `rng-out` : [`object`] updated object of random number generator.
     - `arr-out` : [`float` | `array` of `float`] array of random numbers.
+
+
+### `discrete-preproc` and `discrete`
+
+Return random indices from the given probalilities of the discrete events.
+
+```typ
+#let discrete-preproc(p) = {...}
+```
+
+- **Input Arguments**
+  - `p`: [`array` of `int` or `float`] the array of probalilities of the discrete events, probalilities must be non-negative.
+
+- **Output Arguments**
+  - `g`: [`object`] generated object that contains the lookup table.
+
+```typ
+#let discrete(rng, g, size: 1) = {...}
+```
+
+- **Input Arguments**
+  - `rng` : [`object`] object of random number generator.
+  - `g` : [`object`] generated object that contains the lookup table by `discrete-preproc` function.
+  - `size` : [`int`] returned array size, must be positive integer, optional.
+
+- **Output Arguments**
+  - [`array`] : (`rng-out`, `arr-out`)
+    - `rng-out` : [`object`] updated object of random number generator.
+    - `arr-out` : [`int` | `array` of `int`] array of random indices.
 
 
 ### `shuffle`

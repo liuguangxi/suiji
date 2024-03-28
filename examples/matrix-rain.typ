@@ -1,7 +1,12 @@
+#set document(date: none)
+
+
 #import "/src/lib.typ": *
 #import "@preview/cetz:0.2.2"
 
+
 #set page(width: auto, height: auto, margin: 0pt)
+
 
 #cetz.canvas(length: 1pt, {
   import cetz.draw: *

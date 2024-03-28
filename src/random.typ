@@ -1,9 +1,10 @@
 //==============================================================================
 // Random number generator
 //
-// Public functions are:
+// Public functions:
 //     gen-rng
 //     integers, random, uniform, normal
+//     discrete-preproc, discrete
 //     shuffle, choice
 //==============================================================================
 
@@ -46,7 +47,7 @@
 }
 
 
-// Return random integers from low (inclusive) to high (exclusive).
+// Return random integers from low (inclusive) to high (exclusive)
 //
 // Arguments:
 //     rng: object of random number generator
@@ -81,7 +82,7 @@
 }
 
 
-// Return random floats in the half-open interval [0.0, 1.0).
+// Return random floats in the half-open interval [0.0, 1.0)
 //
 // Arguments:
 //     rng: object of random number generator
@@ -109,7 +110,7 @@
 }
 
 
-// Draw samples from a uniform distribution of half-open interval [low, high) (includes low, but excludes high).
+// Draw samples from a uniform distribution of half-open interval [low, high) (includes low, but excludes high)
 //
 // Arguments:
 //     rng: object of random number generator
@@ -139,7 +140,7 @@
 }
 
 
-// Draw random samples from a normal (Gaussian) distribution.
+// Draw random samples from a normal (Gaussian) distribution
 //
 // Arguments:
 //     rng: object of random number generator
@@ -185,7 +186,127 @@
 }
 
 
-// Randomly shuffle a given array.
+// Preprocess the given probalilities of the discrete events and return a object that contains the lookup table for the discrete random number generator
+//
+// Arguments:
+//     p: the array of probalilities of the discrete events, probalilities must be non-negative
+//
+// Returns:
+//     g: generated object that contains the lookup table
+#let discrete-preproc(p) = {
+  assert(type(p) == array, message: "`p` should be arrry type")
+  let k-event = p.len()
+  assert(k-event >= 1, message: "`k-event` should be positive")
+
+  let p-tot = 0.0;
+  for k in range(k-event) {
+    assert(p.at(k) >= 0, message: "probalilities must be non-negative")
+    p-tot += p.at(k)
+  }
+  if p-tot == 0 {p-tot = 2.22e-16}
+  for k in range(k-event) {p.at(k) /= p-tot}
+
+  let a = (0,) * k-event
+  let f = (0,) * k-event
+  let mean = 1.0 / k-event
+  let n-small = 0
+  let n-big = 0
+  for k in range(k-event) {
+    if p.at(k) < mean {
+      n-small += 1
+      a.at(k) = 0
+    } else {
+      n-big += 1
+      a.at(k) = 1
+    }
+  }
+
+  let bigs = ()
+  let smalls = ()
+  for k in range(k-event) {
+    if a.at(k) == 1 {
+      bigs.push(k)
+    } else {
+      smalls.push(k)
+    }
+  }
+  while smalls.len() > 0 {
+    let s = smalls.pop()
+    if bigs.len() == 0 {
+      a.at(s) = s
+      f.at(s) = 1.0
+      continue
+    }
+    let b = bigs.pop()
+    a.at(s) = b
+    f.at(s) = k-event * p.at(s)
+    let d = mean - p.at(s)
+    p.at(s) += d
+    p.at(b) -= d
+    if p.at(b) < mean {
+      smalls.push(b)
+    } else if p.at(b) > mean {
+      bigs.push(b)
+    } else {
+      a.at(b) = b
+      f.at(b) = 1.0
+    }
+  }
+  while bigs.len() > 0 {
+    let b = bigs.pop()
+    a.at(b) = b
+    f.at(b) = 1.0
+  }
+
+  for k in range(k-event) {
+    f.at(k) += k
+    f.at(k) /= k-event
+  }
+
+  return (K: k-event, A: a, F: f)
+}
+
+
+// Return random indices from the given probalilities of the discrete events
+// Require preprocessed probalilities of the discrete events
+//
+// Arguments:
+//     rng: object of random number generator
+//     g: generated object that contains the lookup table by `discrete-preproc` function
+//     size: returned array size, must be positive integer, optional
+//
+// Returns:
+//     array of (rng, arr)
+//         rng: updated object of random number generator
+//         arr: array of random indices
+#let discrete(rng, g, size: 1) = {
+  assert(type(size) == int and size >= 1, message: "`size` should be positive")
+
+  let u = 0
+  let a = ()
+
+  for i in range(size) {
+    (rng, u) = taus-get-float(rng)
+    let c = calc.floor(u * g.K)
+    let f = g.F.at(c)
+    if f == 1.0 {
+      a.push(c)
+    } else if u < f {
+      a.push(c)
+    } else {
+      a.push(g.A.at(c))
+    }
+  }
+
+  if size == 1 {
+    return (rng, a.at(0))
+  } else {
+    return (rng, a)
+  }
+}
+
+
+// Randomly shuffle a given array
 //
 // Arguments:
 //     rng: object of random number generator
@@ -213,8 +334,8 @@
 }
 
 
-// Generates random samples from a given array.
-// The sample assumes a uniform distribution over all entries in the array.
+// Generates random samples from a given array
+// The sample assumes a uniform distribution over all entries in the array
 //
 // Arguments:
 //     rng: object of random number generator
@@ -239,12 +360,12 @@
   let val = 0
   let a = ()
 
-  if replacement { // Sample with replacement
+  if replacement {    // sample with replacement
     for i in range(size) {
       (rng, val) = _uniform-int(rng, n)
       a.push(arr.at(val))
     }
-  } else { // Sample without replacement
+  } else {    // sample without replacement
     assert(size <= n, message: "`size` should be no more than input array size when `replacement` is false")
 
     let i = 0

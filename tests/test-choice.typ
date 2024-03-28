@@ -1,3 +1,6 @@
+#set document(date: none)
+
+
 #import "/src/lib.typ": *
 
 
