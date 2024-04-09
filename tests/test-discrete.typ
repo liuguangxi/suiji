@@ -24,6 +24,8 @@
   raw(repr(arr)); [ \ ]
   (rng, arr) = discrete(rng, g, size: 1)
   raw(repr(arr)); [ \ ]
+  (rng, arr) = discrete(rng, g, size: 0)
+  raw(repr(arr)); [ \ ]
   (rng, arr) = discrete(rng, g, size: 10)
   print-arr(arr); parbreak()
 

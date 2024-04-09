@@ -23,6 +23,9 @@
   (rng, arr) = random(rng, size: 1)
   raw(repr(arr)); parbreak()
 
+  (rng, arr) = random(rng, size: 0)
+  raw(repr(arr)); parbreak()
+
   (rng, arr) = random(rng, size: 100)
   print-arr(arr); parbreak()
 

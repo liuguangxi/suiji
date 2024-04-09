@@ -23,6 +23,9 @@
   (rng, arr) = uniform(rng, size: 1)
   raw(repr(arr)); parbreak()
 
+  (rng, arr) = uniform(rng, size: 0)
+  raw(repr(arr)); parbreak()
+
   (rng, arr) = uniform(rng, low: -1.0, high: 1.0, size: 100)
   print-arr(arr); parbreak()
 

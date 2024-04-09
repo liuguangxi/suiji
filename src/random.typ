@@ -53,7 +53,7 @@
 //     rng: object of random number generator
 //     low: lowest (signed) integers to be drawn from the distribution, optional
 //     high: one above the largest (signed) integer to be drawn from the distribution, optional
-//     size: returned array size, must be none or positive integer, optional
+//     size: returned array size, must be none or non-negative integer, optional
 //     endpoint: if true, sample from the interval [low, high] instead of the default [low, high), optional
 //
 // Returns:
@@ -61,7 +61,8 @@
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let integers(rng, low: 0, high: 100, size: none, endpoint: false) = {
-  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
+  assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
+  assert(type(endpoint) == bool, message: "`endpoint` should be bool")
 
   let n = if size == none {1} else {size}
   let gap = high - low
@@ -87,14 +88,14 @@
 //
 // Arguments:
 //     rng: object of random number generator
-//     size: returned array size, must be none or positive integer, optional
+//     size: returned array size, must be none or non-negative integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let random(rng, size: none) = {
-  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
+  assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
   let val = 0
@@ -118,14 +119,14 @@
 //     rng: object of random number generator
 //     low: lower boundary of the output interval, optional
 //     high: upper boundary of the output interval, optional
-//     size: returned array size, must be none or positive integer, optional
+//     size: returned array size, must be none or non-negative integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let uniform(rng, low: 0.0, high: 1.0, size: none) = {
-  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
+  assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
   let val = 0
@@ -149,14 +150,14 @@
 //     rng: object of random number generator
 //     loc: float, mean (centre) of the distribution, optional
 //     scale: float, standard deviation (spread or width) of the distribution, must be non-negative, optional
-//     size: returned array size, must be none or positive integer, optional
+//     size: returned array size, must be none or non-negative integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let normal(rng, loc: 0.0, scale: 1.0, size: none) = {
-  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
+  assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
   assert(scale >= 0, message: "`scale` should be non-negative")
 
   let n = if size == none {1} else {size}
@@ -277,14 +278,14 @@
 // Arguments:
 //     rng: object of random number generator
 //     g: generated object that contains the lookup table by `discrete-preproc` function
-//     size: returned array size, must be none or positive integer, optional
+//     size: returned array size, must be none or non-negative integer, optional
 //
 // Returns:
 //     array of (rng, arr)
 //         rng: updated object of random number generator
 //         arr: array of random indices
 #let discrete(rng, g, size: none) = {
-  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
+  assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
   let u = 0
@@ -325,9 +326,6 @@
   assert(type(arr) == array, message: "`arr` should be arrry type")
 
   let n = arr.len()
-  assert(n >= 1, message: "size of `arr` should be positive")
-  if n == 1 {return (rng, arr)}
-
   let j = 0
   for i in range(n - 1, 0, step: -1) {
     (rng, j) = _uniform-int(rng, i + 1)
@@ -339,13 +337,13 @@
 }
 
 
-// Generates random samples from a given array
+// Generate random samples from a given array
 // The sample assumes a uniform distribution over all entries in the array
 //
 // Arguments:
 //     rng: object of random number generator
 //     arr: the array to be sampled
-//     size: returned array size, must be positive integer, optional
+//     size: returned array size, must be non-negative integer, optional
 //     replacement: whether the sample is with or without replacement, optional; default is true, meaning that a value of arr can be selected multiple times.
 //     permutation: whether the sample is permuted when sampling without replacement, optional; default is true, false provides a speedup.
 //
@@ -355,7 +353,7 @@
 //         arr: generated random samples
 #let choice(rng, arr, size: none, replacement: true, permutation: true) = {
   assert(type(arr) == array, message: "`arr` should be arrry type")
-  assert((size == none) or (type(size) == int and size >= 1), message: "`size` should be positive")
+  assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
   assert(type(replacement) == bool, message: "`replacement` should be boolean")
   assert(type(permutation) == bool, message: "`permutation` should be boolean")
 

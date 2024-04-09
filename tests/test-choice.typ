@@ -23,6 +23,9 @@
   (rng, arr) = choice(rng, range(30), size: 1)
   raw(repr(arr)); parbreak()
 
+  (rng, arr) = choice(rng, range(30), size: 0)
+  raw(repr(arr)); parbreak()
+
   [replacement: *false*, permutation: *false* \ ]
   for i in range(10) {
     (rng, arr) = choice(rng, range(30), size: 15, replacement: false, permutation: false)
