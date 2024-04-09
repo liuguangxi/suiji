@@ -2,7 +2,7 @@
 // Blind text (Lorem ipsum) generator for Chinese
 //
 // Public functions:
-//     rand-chinese
+//     rand-sc
 //==============================================================================
 
 
