@@ -6,7 +6,7 @@
 //==============================================================================
 
 
-#import "random.typ": gen-rng, integers, choice
+#import "random-fast.typ": gen-rng-f, integers-f, choice-f
 
 
 //----------------------------------------------------------
@@ -57,7 +57,7 @@
 // Generate blind text of Simplified Chinese with pure words
 #let _rand-sc-pure(rng, words) = {
   let arr = ()
-  (rng, arr) = integers(rng, low: 0, high: SC-LEN, size: words)
+  (rng, arr) = integers-f(rng, low: 0, high: SC-LEN, size: words)
   return arr.map(i => SC-CHARS.at(i)).join()
 }
 
@@ -75,12 +75,12 @@
   let quote-dir = 0
 
   while (n-rest > 0) {
-    (rng, n-seg) = integers(rng, low: gap-min, high: gap-max, endpoint: true)
+    (rng, n-seg) = integers-f(rng, low: gap-min, high: gap-max, endpoint: true)
     if n-seg > n-rest {n-seg = n-rest}
     n-rest -= n-seg
-    (rng, w) = integers(rng, low: 0, high: SC-LEN, size: n-seg)
+    (rng, w) = integers-f(rng, low: 0, high: SC-LEN, size: n-seg)
     arr += w.map(i => SC-CHARS.at(i))
-    (rng, punct) = choice(rng, u-punct)
+    (rng, punct) = choice-f(rng, u-punct)
     if punct == 0x201D and quote-dir == 0 {punct = 0x201C}
     if punct == 0x201C and quote-dir == 1 {punct = 0x201D}
     if n-rest > 0 {
@@ -120,7 +120,7 @@
   assert(type(punctuation) == bool, message: "`punctuation` should be bool")
   assert(type(gap) == int and gap >= 3 and gap <= 5000, message: "`gap` should be in range [3, 5000]")
 
-  let rng = gen-rng(seed)
+  let rng = gen-rng-f(seed)
   if punctuation {
     return _rand-sc-mix(rng, words, gap)
   } else {

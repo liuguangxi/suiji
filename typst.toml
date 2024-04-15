@@ -1,6 +1,6 @@
 [package]
 name = "suiji"
-version = "0.2.2"
+version = "0.3.0"
 entrypoint = "src/lib.typ"
 authors = ["Guangxi Liu <https://github.com/liuguangxi>"]
 license = "MIT"
