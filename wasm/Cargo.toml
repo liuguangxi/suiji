@@ -1,0 +1,18 @@
+[package]
+name = "core"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ciborium = "0.2.2"
+wasm-minimal-protocol = "0.1.0"
+
+[profile.release]
+lto = true          # Enable link-time optimization
+strip = true        # Strip symbols from binary
+opt-level = 3       # Optimize for speed
+codegen-units = 1   # Reduce number of codegen units to increase optimizations
+panic = 'abort'     # Abort on panic
