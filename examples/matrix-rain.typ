@@ -2,7 +2,7 @@
 
 
 #import "/src/lib.typ": *
-#import "@preview/cetz:0.2.2"
+#import "@preview/cetz:0.3.4"
 
 
 #set page(width: auto, height: auto, margin: 0pt)
@@ -16,7 +16,7 @@
   let num-row = 32
   let text-len = 16
   let seq = "abcdefghijklmnopqrstuvwxyz!@#$%^&*".split("").slice(1, 35).map(it => raw(it))
-  let rng = gen-rng(42)
+  let rng = gen-rng-f(42)
   let num-cnt = 0
   let val = 0
   let chars = ()
@@ -24,10 +24,10 @@
   rect((-10, -10), (font-size * (num-col - 1) * 0.6 + 10, font-size * (num-row - 1) + 10), fill: black)
 
   for c in range(num-col) {
-    (rng, num-cnt) = integers(rng, low: 1, high: 3)
+    (rng, num-cnt) = integers-f(rng, low: 1, high: 3)
     for cnt in range(num-cnt) {
-      (rng, val) = integers(rng, low: -10, high: num-row - 2)
-      (rng, chars) = choice(rng, seq, size: text-len)
+      (rng, val) = integers-f(rng, low: -10, high: num-row - 2)
+      (rng, chars) = choice-f(rng, seq, size: text-len)
       for i in range(text-len) {
         let y = i + val
         if y >= 0 and y < num-row {
