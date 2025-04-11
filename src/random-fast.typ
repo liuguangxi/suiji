@@ -3,29 +3,13 @@
 //
 // Public functions:
 //     gen-rng-f
-//     randi-f, integers-f, random-f, uniform-f, normal-f
+//     integers-f, random-f, uniform-f, normal-f
 //     discrete-preproc-f, discrete-f
 //     shuffle-f, choice-f
 //==============================================================================
 
 
-#import "lcg.typ": lcg-get, lcg-get-float, lcg-set
-
-
-//----------------------------------------------------------
-// Private functions
-//----------------------------------------------------------
-
-// Return random integers from [0, n), 1 <= n <= 0x80000000
-#let _uniform-int(rng, n) = {
-  let scale = calc.quo(0x80000000, n)
-
-  while true {
-    rng = lcg-get(rng)
-    let k = calc.quo(rng, scale)
-    if k < n {return (rng, k)}
-  }
-}
+#let plg = plugin("core.wasm")
 
 
 //----------------------------------------------------------
@@ -42,18 +26,10 @@
 #let gen-rng-f(seed) = {
   assert(type(seed) == int, message: "`seed` should be an integer")
 
-  lcg-set(seed)
+  let enc = cbor.encode(seed.bit-and(0xFFFFFFFF))
+  let dec = cbor(plg.gen_rng_fn(enc))
+  dec
 }
-
-
-// Return a raw random integer from [0, 2^31)
-//
-// Arguments:
-//     rng: object of random number generator
-//
-// Returns:
-//     rng-out: updated object of random number generator (random integer from the interval [0, 2^31-1])
-#let randi-f = lcg-get
 
 
 // Return random integers from low (inclusive) to high (exclusive)
@@ -78,12 +54,9 @@
   if endpoint {gap += 1}
   assert(gap >= 1 and gap <= 0x80000000, message: "invalid range between `low` and `high`")
 
-  let val = 0
-  let a = ()
-  for i in range(n) {
-    (rng, val) = _uniform-int(rng, gap)
-    a.push(val + low)
-  }
+  let enc = cbor.encode((rng, n, low, gap))
+  let a
+  (rng, a) = cbor(plg.integers_fn(enc))
 
   if size == none {
     return (rng, a.at(0))
@@ -107,12 +80,10 @@
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
-  let val = 0
-  let a = ()
-  for i in range(n) {
-    (rng, val) = lcg-get-float(rng)
-    a.push(val)
-  }
+
+  let enc = cbor.encode((rng, n))
+  let a
+  (rng, a) = cbor(plg.random_fn(enc))
 
   if size == none {
     return (rng, a.at(0))
@@ -138,12 +109,10 @@
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
-  let val = 0
-  let a = ()
-  for i in range(n) {
-    (rng, val) = lcg-get-float(rng)
-    a.push(low * (1 - val) + high * val)
-  }
+
+  let enc = cbor.encode((rng, n, float(low), float(high)))
+  let a
+  (rng, a) = cbor(plg.uniform_fn(enc))
 
   if size == none {
     return (rng, a.at(0))
@@ -170,27 +139,10 @@
   assert(scale >= 0, message: "`scale` should be non-negative")
 
   let n = if size == none {1} else {size}
-  let x = 0
-  let y = 0
-  let r2 = 0
-  let val = 0
-  let a = ()
-  for i in range(n) {
-    while true {
-      // Choose x and y in uniform square (-1,-1) to (+1,+1)
-      (rng, val) = lcg-get-float(rng)
-      x = -1 + 2 * val
-      (rng, val) = lcg-get-float(rng)
-      y = -1 + 2 * val
 
-      // See if it is in the unit circle
-      r2 = x * x + y * y
-      if r2 <= 1.0 and r2 != 0 {break}
-    }
-
-    // Box-Muller transform
-    a.push(loc + scale * y * calc.sqrt(-2.0 * calc.ln(r2) / r2));
-  }
+  let enc = cbor.encode((rng, n, float(loc), float(scale)))
+  let a
+  (rng, a) = cbor(plg.normal_fn(enc))
 
   if size == none {
     return (rng, a.at(0))
@@ -211,73 +163,12 @@
   assert(type(p) == array, message: "`p` should be arrry type")
   let k-event = p.len()
   assert(k-event >= 1, message: "`k-event` should be positive")
+  p = p.map(it => calc.max(0.0, float(it)))
 
-  let p-tot = 0.0;
-  for k in range(k-event) {
-    assert(p.at(k) >= 0, message: "probalilities must be non-negative")
-    p-tot += p.at(k)
-  }
-  if p-tot == 0 {p-tot = 2.22e-16}
-  for k in range(k-event) {p.at(k) /= p-tot}
+  let enc = cbor.encode(p)
+  let dec = cbor(plg.discrete_preproc_fn(enc))
 
-  let a = (0,) * k-event
-  let f = (0,) * k-event
-  let mean = 1.0 / k-event
-  let n-small = 0
-  let n-big = 0
-  for k in range(k-event) {
-    if p.at(k) < mean {
-      n-small += 1
-      a.at(k) = 0
-    } else {
-      n-big += 1
-      a.at(k) = 1
-    }
-  }
-
-  let bigs = ()
-  let smalls = ()
-  for k in range(k-event) {
-    if a.at(k) == 1 {
-      bigs.push(k)
-    } else {
-      smalls.push(k)
-    }
-  }
-  while smalls.len() > 0 {
-    let s = smalls.pop()
-    if bigs.len() == 0 {
-      a.at(s) = s
-      f.at(s) = 1.0
-      continue
-    }
-    let b = bigs.pop()
-    a.at(s) = b
-    f.at(s) = k-event * p.at(s)
-    let d = mean - p.at(s)
-    p.at(s) += d
-    p.at(b) -= d
-    if p.at(b) < mean {
-      smalls.push(b)
-    } else if p.at(b) > mean {
-      bigs.push(b)
-    } else {
-      a.at(b) = b
-      f.at(b) = 1.0
-    }
-  }
-  while bigs.len() > 0 {
-    let b = bigs.pop()
-    a.at(b) = b
-    f.at(b) = 1.0
-  }
-
-  for k in range(k-event) {
-    f.at(k) += k
-    f.at(k) /= k-event
-  }
-
-  return (K: k-event, A: a, F: f)
+  return (K: dec.at(0), A: dec.at(1), F: dec.at(2))
 }
 
 
@@ -297,21 +188,10 @@
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
-  let u = 0
-  let a = ()
 
-  for i in range(n) {
-    (rng, u) = lcg-get-float(rng)
-    let c = calc.floor(u * g.K)
-    let f = g.F.at(c)
-    if f == 1.0 {
-      a.push(c)
-    } else if u < f {
-      a.push(c)
-    } else {
-      a.push(g.A.at(c))
-    }
-  }
+  let enc = cbor.encode((rng, n, (g.K, g.A, g.F)))
+  let a
+  (rng, a) = cbor(plg.discrete_fn(enc))
 
   if size == none {
     return (rng, a.at(0))
@@ -335,13 +215,14 @@
   assert(type(arr) == array, message: "`arr` should be arrry type")
 
   let n = arr.len()
-  let j = 0
-  for i in range(n - 1, 0, step: -1) {
-    (rng, j) = _uniform-int(rng, i + 1)
-    if i != j {
-      (arr.at(i), arr.at(j)) = (arr.at(j), arr.at(i))
-    }
+
+  if n > 0 {
+    let enc = cbor.encode((rng, n))
+    let ai
+    (rng, ai) = cbor(plg.shuffle_fn(enc))
+    arr = ai.map(it => arr.at(it))
   }
+
   return (rng, arr)
 }
 
@@ -369,32 +250,14 @@
   let n = arr.len()
   assert(n >= 1, message: "size of `arr` should be positive")
   let n-out = if size == none {1} else {size}
-
-  let val = 0
-  let a = ()
-
-  if replacement {    // sample with replacement
-    for i in range(n-out) {
-      (rng, val) = _uniform-int(rng, n)
-      a.push(arr.at(val))
-    }
-  } else {    // sample without replacement
+  if not replacement {    // sample without replacement
     assert(n-out <= n, message: "`size` should be no more than input array size when `replacement` is false")
-
-    let i = 0
-    let j = 0
-    while i < n and j < n-out {
-      (rng, val) = lcg-get-float(rng)
-      if (n - i) * val < n-out - j {
-        a.push(arr.at(i))
-        j += 1
-      }
-      i += 1
-    }
-    if permutation {
-      (rng, a) = shuffle-f(rng, a)
-    }
   }
+
+  let enc = cbor.encode((rng, n-out, n, replacement, permutation))
+  let ai
+  (rng, ai) = cbor(plg.choice_fn(enc))
+  let a = ai.map(it => arr.at(it))
 
   if size == none {
     return (rng, a.at(0))

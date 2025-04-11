@@ -214,14 +214,10 @@
   let a = (0,) * k-event
   let f = (0,) * k-event
   let mean = 1.0 / k-event
-  let n-small = 0
-  let n-big = 0
   for k in range(k-event) {
     if p.at(k) < mean {
-      n-small += 1
       a.at(k) = 0
     } else {
-      n-big += 1
       a.at(k) = 1
     }
   }

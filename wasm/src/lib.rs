@@ -140,6 +140,8 @@ fn normal(rng: [u32; 3], sz: u32, loc: f64, scale: f64) -> ([u32; 3], Vec<f64>) 
             r2 = x * x + y * y;
             if r2 <= 1.0 && r2 != 0.0 {break}
         }
+
+        // Box-Muller transform
         a.push(loc + scale * y * (-2.0 * r2.ln() / r2).sqrt());
     }
     (rng, a)
