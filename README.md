@@ -6,20 +6,25 @@
 ## Features
 
 - All functions are immutable, which means results of random are completely deterministic.
-- Core random engine chooses "Maximally equidistributed combined Tausworthe generator" and "LCG".
+- Core random engine chooses "Maximally equidistributed combined Tausworthe generator".
 - Generate random integers or floats from various distribution.
 - Randomly shuffle an array of objects.
 - Randomly sample from an array of objects.
-- Generate blind text of Simplified Chinese.
+- Accelerate random number generation based on the WebAssembly plugin.
 
 
 ## Examples
 
 The example below uses `suiji` and `cetz` packages to create a trajectory of a random walk.
 
+<img src="./examples/random-walk.png" width="600px">
+
+<details>
+<summary>Show code</summary>
+
 ```typ
-#import "@preview/suiji:0.3.0": *
-#import "@preview/cetz:0.2.2"
+#import "@preview/suiji:0.4.0": *
+#import "@preview/cetz:0.3.4"
 
 #set page(width: auto, height: auto, margin: 0.5cm)
 
@@ -29,11 +34,11 @@ The example below uses `suiji` and `cetz` packages to create a trajectory of a r
   let n = 2000
   let (x, y) = (0, 0)
   let (x-new, y-new) = (0, 0)
-  let rng = gen-rng(42)
+  let rng = gen-rng-f(42)
   let v = ()
 
   for i in range(n) {
-    (rng, v) = uniform(rng, low: -2.0, high: 2.0, size: 2)
+    (rng, v) = uniform-f(rng, low: -2.0, high: 2.0, size: 2)
     (x-new, y-new) = (x - v.at(1), y - v.at(0))
     let col = color.mix((blue.transparentize(20%), 1-i/n), (green.transparentize(20%), i/n))
     line(stroke: (paint: col, cap: "round", thickness: 2pt),
@@ -43,14 +48,18 @@ The example below uses `suiji` and `cetz` packages to create a trajectory of a r
   }
 })
 ```
-
-![random-walk](./examples/random-walk.png)
+</details>
 
 Another example is drawing the the famous **Matrix** rain effect of falling green characters in a terminal.
 
+<img src="./examples/matrix-rain.png" width="600px">
+
+<details>
+<summary>Show code</summary>
+
 ```typ
-#import "@preview/suiji:0.3.0": *
-#import "@preview/cetz:0.2.2"
+#import "@preview/suiji:0.4.0": *
+#import "@preview/cetz:0.3.4"
 
 #set page(width: auto, height: auto, margin: 0pt)
 
@@ -62,7 +71,7 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
   let num-row = 32
   let text-len = 16
   let seq = "abcdefghijklmnopqrstuvwxyz!@#$%^&*".split("").slice(1, 35).map(it => raw(it))
-  let rng = gen-rng(42)
+  let rng = gen-rng-f(42)
   let num-cnt = 0
   let val = 0
   let chars = ()
@@ -70,10 +79,10 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
   rect((-10, -10), (font-size * (num-col - 1) * 0.6 + 10, font-size * (num-row - 1) + 10), fill: black)
 
   for c in range(num-col) {
-    (rng, num-cnt) = integers(rng, low: 1, high: 3)
+    (rng, num-cnt) = integers-f(rng, low: 1, high: 3)
     for cnt in range(num-cnt) {
-      (rng, val) = integers(rng, low: -10, high: num-row - 2)
-      (rng, chars) = choice(rng, seq, size: text-len)
+      (rng, val) = integers-f(rng, low: -10, high: num-row - 2)
+      (rng, chars) = choice-f(rng, seq, size: text-len)
       for i in range(text-len) {
         let y = i + val
         if y >= 0 and y < num-row {
@@ -89,7 +98,7 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
 })
 ```
 
-![matrix-rain](./examples/matrix-rain.png)
+</details>
 
 
 ## Usage
@@ -97,14 +106,12 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
 Import `suiji` module first before use any random functions from it.
 
 ```typ
-#import "@preview/suiji:0.3.0": *
+#import "@preview/suiji:0.4.0": *
 ```
 
 For functions that generate various random numbers or randomly shuffle, a random number generator object (**rng**) is required as both input and output arguments. And the original **rng** should be created by function `gen-rng`, with an integer as the argument of seed. This calling style seems to be a little inconvenient, as it is limited by the programming paradigm. For function `discrete`, the given probalilities of the discrete events should be preprocessed by function `discrete-preproc`, whose output serves as an input argument of `discrete`.
 
-Another set of functions with the same functionality provides higher performance (about 3 times faster) and has the suffix `-f` in their names. For example, `gen-rng-f` and `integers-f` are the fast versions of `gen-rng` and `integers`, respectively.
-
-The function `rand-sc` creates blind text of Simplified Chinese. This function yields a Chinese-like Lorem Ipsum blind text with the given number of words, where punctuations are optional.
+Another set of functions with the same functionality provides higher performance and has the suffix `-f` in their names. For example, `gen-rng-f` and `integers-f` are the fast versions of `gen-rng` and `integers`, respectively.
 
 The code below generates several random permutations of 0 to 9. Each time after function `shuffle-f` is called, the value of variable `rng` is updated, so generated permutations are different.
 
@@ -121,7 +128,9 @@ The code below generates several random permutations of 0 to 9. Each time after 
 
 ![random-permutation](./examples/random-permutation.png)
 
-For more codes with these functions see [tests](./tests).
+For more information, see the [manual](https://github.com/liuguangxi/suiji/blob/main/doc/manual.pdf).
+
+This package comes with some unit tests under the [tests](https://github.com/liuguangxi/suiji/tree/main/tests) directory.
 
 
 ## Reference
@@ -139,21 +148,6 @@ Construct a new random number generator with a seed.
 
 - **Output Arguments**
   - `rng` : [`object`] generated object of random number generator.
-
-
-### `randi-f`
-
-Return a raw random integer from [0, 2^31).
-
-```typ
-#let randi-f(rng) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object` | `int`] object of random number generator (generated by function `*-f`).
-
-- **Output Arguments**
-  - `rng-out` : [`object` | `int`] updated object of random number generator (random integer from the interval [0, 2^31-1]).
 
 
 ### `integers` / `integers-f`
@@ -301,21 +295,3 @@ Generate random samples from a given array.
   - [`array`] : (`rng-out`, `arr-out`)
     - `rng-out` : [`object`] updated object of random number generator.
     - `arr-out` : [`array`] generated random samples.
-
-
-### `rand-sc`
-
-Generate blind text of Simplified Chinese.
-
-```typ
-#let rand-sc(words, seed: 42, punctuation: false, gap: 10) = {...}
-```
-
-- **Input Arguments**
-  - `words` : [`int`] the length of the blind text in pure words.
-  - `seed` : [`int`] value of seed, optional.
-  - `punctuation` : [`bool`] if true, insert punctuations in generated words, optional.
-  - `gap` : [`int`] average gap between punctuations, optional.
-
-- **Output Arguments**
-  - [`str`] : generated blind text of Simplified Chinese.
