@@ -13,8 +13,8 @@ initiate_protocol!();
 // Tausworthe operator
 #[inline(always)]
 fn tausworthe(s: u32, a: u8, b: u8, c: u32, d: u8) -> u32 {
-    let s1 = ((s & c) << d) & 0xFFFFFFFF;
-    let s2 = (((s << a) & 0xFFFFFFFF) ^ s) >> b;
+    let s1 = (s & c) << d;
+    let s2 = ((s << a) ^ s) >> b;
     s1 ^ s2
 }
 
@@ -161,26 +161,22 @@ fn discrete_preproc(p: Vec<f64>) -> (u32, Vec<u32>, Vec<f64>) {
     let mut f: Vec<f64> = vec![0.0; k_event as usize];
 
     let mean = 1.0 / k_event as f64;
-    let mut k: u32 = 0;
-    while k < k_event {
+    for k in 0..k_event {
         if pp[k as usize] < mean {
             a[k as usize] = 0;
         } else {
             a[k as usize] = 1;
         }
-        k += 1;
     }
 
     let mut bigs: Vec<u32> = Vec::new();
     let mut smalls: Vec<u32> = Vec::new();
-    k = 0;
-    while k < k_event {
+    for k in 0..k_event {
         if a[k as usize] == 1 {
             bigs.push(k);
         } else {
             smalls.push(k);
         }
-        k += 1;
     }
     while smalls.len() > 0 {
         let s = smalls.pop().unwrap();
@@ -210,11 +206,9 @@ fn discrete_preproc(p: Vec<f64>) -> (u32, Vec<u32>, Vec<f64>) {
         f[b as usize] = 1.0;
     }
 
-    k = 0;
-    while k < k_event {
+    for k in 0..k_event {
         f[k as usize] += k as f64;
         f[k as usize] /= k_event as f64;
-        k += 1;
     }
 
     (k_event, a, f)
