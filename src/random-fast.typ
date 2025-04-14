@@ -46,6 +46,8 @@
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let integers-f(rng, low: 0, high: 100, size: none, endpoint: false) = {
+  assert(type(low) == int, message: "`low` should be integer")
+  assert(type(high) == int, message: "`high` should be integer")
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
   assert(type(endpoint) == bool, message: "`endpoint` should be bool")
 
@@ -106,6 +108,8 @@
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let uniform-f(rng, low: 0.0, high: 1.0, size: none) = {
+  assert(type(low) == int or type(low) == float, message: "`low` should be numeric")
+  assert(type(high) == int or type(high) == float, message: "`high` should be numeric")
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
@@ -135,8 +139,9 @@
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let normal-f(rng, loc: 0.0, scale: 1.0, size: none) = {
+  assert(type(loc) == int or type(loc) == float, message: "`loc` should be numeric")
+  assert((type(scale) == int or type(scale) == float) and scale >= 0, message: "`scale` should be non-negative")
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
-  assert(scale >= 0, message: "`scale` should be non-negative")
 
   let n = if size == none {1} else {size}
 

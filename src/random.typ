@@ -36,7 +36,7 @@
 // Construct a new random number generator with a seed
 //
 // Arguments:
-//     seed: value of seed, effective value is an integer from [1, 2^32-1]
+//     seed: value of seed, effective value is an integer from [0, 2^32-1]
 //
 // Returns:
 //     rng: generated object of random number generator
@@ -61,6 +61,8 @@
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let integers(rng, low: 0, high: 100, size: none, endpoint: false) = {
+  assert(type(low) == int, message: "`low` should be integer")
+  assert(type(high) == int, message: "`high` should be integer")
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
   assert(type(endpoint) == bool, message: "`endpoint` should be bool")
 
@@ -126,6 +128,8 @@
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let uniform(rng, low: 0.0, high: 1.0, size: none) = {
+  assert(type(low) == int or type(low) == float, message: "`low` should be numeric")
+  assert(type(high) == int or type(high) == float, message: "`high` should be numeric")
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
 
   let n = if size == none {1} else {size}
@@ -157,8 +161,9 @@
 //         rng: updated object of random number generator
 //         arr: array of random numbers
 #let normal(rng, loc: 0.0, scale: 1.0, size: none) = {
+  assert(type(loc) == int or type(loc) == float, message: "`loc` should be numeric")
+  assert((type(scale) == int or type(scale) == float) and scale >= 0, message: "`scale` should be non-negative")
   assert((size == none) or (type(size) == int and size >= 0), message: "`size` should be non-negative")
-  assert(scale >= 0, message: "`scale` should be non-negative")
 
   let n = if size == none {1} else {size}
   let x = 0
