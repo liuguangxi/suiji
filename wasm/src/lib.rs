@@ -31,6 +31,7 @@ fn taus_get(st: [u32; 3]) -> ([u32; 3], u32) {
 
 
 // Get a new random float from [0, 1) by update state
+#[inline(always)]
 fn taus_get_float(st: [u32; 3]) -> ([u32; 3], f64) {
     let (st, val) = taus_get(st);
     (st, val as f64 / 4294967296.0)
@@ -62,6 +63,7 @@ fn taus_set(seed: u32) -> [u32; 3] {
 
 
 // Return random integers from [0, n), 1 <= n <= 0xFFFFFFFF
+#[inline(always)]
 fn uniform_int(rng: [u32; 3], n: u32) -> ([u32; 3], u32) {
     let scale: u32 = 0xFFFFFFFF / n;
     let mut rng = rng;
