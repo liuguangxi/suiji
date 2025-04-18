@@ -6,7 +6,7 @@
 ## Features
 
 - All functions are immutable, which means results of random are completely deterministic.
-- Core random engine chooses "Maximally equidistributed combined Tausworthe generator".
+- Core random engine chooses _maximally equidistributed combined Tausworthe generator_.
 - Generate random integers or floats from various distribution.
 - Randomly shuffle an array of objects.
 - Randomly sample from an array of objects.
@@ -97,7 +97,6 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
   }
 })
 ```
-
 </details>
 
 
@@ -109,9 +108,9 @@ Import `suiji` module first before use any random functions from it.
 #import "@preview/suiji:0.4.0": *
 ```
 
-For functions that generate various random numbers or randomly shuffle, a random number generator object (**rng**) is required as both input and output arguments. And the original **rng** should be created by function `gen-rng`, with an integer as the argument of seed. This calling style seems to be a little inconvenient, as it is limited by the programming paradigm. For function `discrete`, the given probalilities of the discrete events should be preprocessed by function `discrete-preproc`, whose output serves as an input argument of `discrete`.
+For functions that generate various random numbers or randomly shuffle, a random number generator object (**rng**) is required as both input and output arguments. And the original **rng** should be created by function `gen-rng`, with an integer as the argument of seed. For function `discrete`, the given probalilities of the discrete events should be preprocessed by function `discrete-preproc`, whose output serves as an input argument of `discrete`.
 
-Another set of functions with the same functionality provides higher performance and has the suffix `-f` in their names. For example, `gen-rng-f` and `integers-f` are the fast versions of `gen-rng` and `integers`, respectively.
+Another set of functions with the same functionality provides higher performance and has the suffix `-f` in their names. For example, `gen-rng-f` and `integers-f` are the fast versions of `gen-rng` and `integers`, respectively. It is recommended to always use the function version accelerated by the plugin.
 
 The code below generates several random permutations of 0 to 9. Each time after function `shuffle-f` is called, the value of variable `rng` is updated, so generated permutations are different.
 
@@ -131,167 +130,3 @@ The code below generates several random permutations of 0 to 9. Each time after 
 For more information, see the [manual](https://github.com/liuguangxi/suiji/blob/main/doc/manual.pdf).
 
 This package comes with some unit tests under the [tests](https://github.com/liuguangxi/suiji/tree/main/tests) directory.
-
-
-## Reference
-
-### `gen-rng` / `gen-rng-f`
-
-Construct a new random number generator with a seed.
-
-```typ
-#let gen-rng(seed) = {...}
-```
-
-- **Input Arguments**
-  - `seed` : [`int`] value of seed.
-
-- **Output Arguments**
-  - `rng` : [`object`] generated object of random number generator.
-
-
-### `integers` / `integers-f`
-
-Return random integers from `low` (inclusive) to `high` (exclusive).
-
-```typ
-#let integers(rng, low: 0, high: 100, size: none, endpoint: false) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object`] object of random number generator.
-  - `low` : [`int`] lowest (signed) integers to be drawn from the distribution, optional.
-  - `high` : [`int`] one above the largest (signed) integer to be drawn from the distribution, optional.
-  - `size` : [`none` or `int`] returned array size, must be none or non-negative integer, optional.
-  - `endpoint` : [`bool`] if true, sample from the interval [`low`, `high`] instead of the default [`low`, `high`), optional.
-
-- **Output Arguments**
-  - [`array`] : (`rng-out`, `arr-out`)
-    - `rng-out` : [`object`] updated object of random number generator.
-    - `arr-out` : [`int` | `array` of `int`] array of random numbers.
-
-
-### `random` / `random-f`
-
-Return random floats in the half-open interval [0.0, 1.0).
-
-```typ
-#let random(rng, size: none) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object`] object of random number generator.
-  - `size` : [`none` or `int`] returned array size, must be none or non-negative integer, optional.
-
-- **Output Arguments**
-  - [`array`] : (`rng-out`, `arr-out`)
-    - `rng-out` : [`object`] updated object of random number generator.
-    - `arr-out` : [`float` | `array` of `float`] array of random numbers.
-
-
-### `uniform` / `uniform-f`
-
-Draw samples from a uniform distribution. Samples are uniformly distributed over the half-open interval [`low`, `high`) (includes `low`, but excludes `high`).
-
-```typ
-#let uniform(rng, low: 0.0, high: 1.0, size: none) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object`] object of random number generator.
-  - `low` : [`float`] lower boundary of the output interval, optional.
-  - `high` : [`float`] upper boundary of the output interval, optional.
-  - `size` : [`none` or `int`] returned array size, must be none or non-negative integer, optional.
-
-- **Output Arguments**
-  - [`array`] : (`rng-out`, `arr-out`)
-    - `rng-out` : [`object`] updated object of random number generator.
-    - `arr-out` : [`float` | `array` of `float`] array of random numbers.
-
-
-### `normal` / `normal-f`
-
-Draw random samples from a normal (Gaussian) distribution.
-
-```typ
-#let normal(rng, loc: 0.0, scale: 1.0, size: none) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object`] object of random number generator.
-  - `loc` : [`float`] mean (centre) of the distribution, optional.
-  - `scale` : [`float`] standard deviation (spread or width) of the distribution, must be non-negative, optional.
-  - `size` : [`none` or `int`] returned array size, must be none or non-negative integer, optional.
-
-- **Output Arguments**
-  - [`array`] : (`rng-out`, `arr-out`)
-    - `rng-out` : [`object`] updated object of random number generator.
-    - `arr-out` : [`float` | `array` of `float`] array of random numbers.
-
-
-### `discrete-preproc` and `discrete` / `discrete-preproc-f` and `discrete-f`
-
-Return random indices from the given probalilities of the discrete events.
-
-```typ
-#let discrete-preproc(p) = {...}
-```
-
-- **Input Arguments**
-  - `p`: [`array` of `int` or `float`] the array of probalilities of the discrete events, probalilities must be non-negative.
-
-- **Output Arguments**
-  - `g`: [`object`] generated object that contains the lookup table.
-
-```typ
-#let discrete(rng, g, size: none) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object`] object of random number generator.
-  - `g` : [`object`] generated object that contains the lookup table by `discrete-preproc` function.
-  - `size` : [`none` or `int`] returned array size, must be none or non-negative integer, optional.
-
-- **Output Arguments**
-  - [`array`] : (`rng-out`, `arr-out`)
-    - `rng-out` : [`object`] updated object of random number generator.
-    - `arr-out` : [`int` | `array` of `int`] array of random indices.
-
-
-### `shuffle` / `shuffle-f`
-
-Randomly shuffle a given array.
-
-```typ
-#let shuffle(rng, arr) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object`] object of random number generator.
-  - `arr` : [`array`] the array to be shuffled.
-
-- **Output Arguments**
-  - [`array`] : (`rng-out`, `arr-out`)
-    - `rng-out` : [`object`] updated object of random number generator.
-    - `arr-out` : [`array`] shuffled array.
-
-
-### `choice` / `choice-f`
-
-Generate random samples from a given array.
-
-```typ
-#let choice(rng, arr, size: none, replacement: true, permutation: true) = {...}
-```
-
-- **Input Arguments**
-  - `rng` : [`object`] object of random number generator.
-  - `arr` : [`array`] the array to be sampled.
-  - `size` : [`none` or `int`] returned array size, must be none or non-negative integer, optional.
-  - `replacement`: [`bool`] whether the sample is with or without replacement, optional; default is true, meaning that a value of `arr` can be selected multiple times.
-  - `permutation`: [`bool`] whether the sample is permuted when sampling without replacement, optional; default is true, false provides a speedup.
-
-- **Output Arguments**
-  - [`array`] : (`rng-out`, `arr-out`)
-    - `rng-out` : [`object`] updated object of random number generator.
-    - `arr-out` : [`array`] generated random samples.
