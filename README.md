@@ -10,6 +10,7 @@
 - Generate random integers or floats from various distribution.
 - Randomly shuffle an array of objects.
 - Randomly sample from an array of objects.
+- Generate quasi-random Halton sequences of different dimensions.
 - Accelerate random number generation based on the WebAssembly plugin.
 
 
@@ -23,8 +24,8 @@ The example below uses `suiji` and `cetz` packages to create a trajectory of a r
 <summary>Show code</summary>
 
 ```typ
-#import "@preview/suiji:0.4.0": *
-#import "@preview/cetz:0.3.4"
+#import "@preview/suiji:0.5.0": *
+#import "@preview/cetz:0.4.2"
 
 #set page(width: auto, height: auto, margin: 0.5cm)
 
@@ -58,8 +59,8 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
 <summary>Show code</summary>
 
 ```typ
-#import "@preview/suiji:0.4.0": *
-#import "@preview/cetz:0.3.4"
+#import "@preview/suiji:0.5.0": *
+#import "@preview/cetz:0.4.2"
 
 #set page(width: auto, height: auto, margin: 0pt)
 
@@ -105,10 +106,12 @@ Another example is drawing the the famous **Matrix** rain effect of falling gree
 Import `suiji` module first before use any random functions from it.
 
 ```typ
-#import "@preview/suiji:0.4.0": *
+#import "@preview/suiji:0.5.0": *
 ```
 
 For functions that generate various random numbers or randomly shuffle, a random number generator object (**rng**) is required as both input and output arguments. And the original **rng** should be created by function `gen-rng`, with an integer as the argument of seed. For function `discrete`, the given probalilities of the discrete events should be preprocessed by function `discrete-preproc`, whose output serves as an input argument of `discrete`.
+
+For functions that generate quasi-random sequences like `haltonset`, call it directly using the appropriate parameter values.
 
 Another set of functions with the same functionality provides higher performance and has the suffix `-f` in their names. For example, `gen-rng-f` and `integers-f` are the fast versions of `gen-rng` and `integers`, respectively. It is recommended to always use the function version accelerated by the plugin.
 
