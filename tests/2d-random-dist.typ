@@ -20,8 +20,6 @@
   let x2 = range(sz).map(i => arr.at(i).at(0))
   let y2 = range(sz).map(i => arr.at(i).at(1))
 
-  show: lq.set-grid(stroke: none)
-
   lq.diagram(
     width: width, height: height,
     title: [*Random (uniform)*],

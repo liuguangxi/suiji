@@ -86,11 +86,12 @@ It has the following features:
 - Generate random integers or floats from various distribution.
 - Randomly shuffle an array of objects.
 - Randomly sample from an array of objects.
+- Generate quasi-random Halton sequences of different dimensions.
 - Accelerate random number generation based on the WebAssembly plugin.
 
 To use it, import the latest version of this package with:
 ```typ
-#import "@preview/suiji:0.4.0": *
+#import "@preview/suiji:0.5.0": *
 ```
 This line will be omitted in the examples codes that follows.
 
@@ -127,6 +128,15 @@ A new random integer from $[0, 2^32)$ is obtained by updating the state.
 Samples from each distribution implemented here can be obtained using the generator as an underlying source of randomness.
 
 
+== Quasi-Random Numbers
+
+_Quasi-random number generators_ (QRNGs) produce highly uniform samples of the unit hypercube. QRNGs minimize the discrepancy between the distribution of generated points and a distribution with equal proportions of points in each sub-cube of a uniform partition of the hypercube. As a result, QRNGs systematically fill the “holes” in any initial segment of the generated quasi-random sequence.
+
+Quasi-random sequences seek to fill space uniformly, and to do so in such a way that initial segments approximate this behavior up to a specified density.
+
+Currently only Halton sequences are supported. Produced by the `haltonset` function. These sequences use different prime bases to form successively finer uniform partitions of the unit interval in each dimension.
+
+
 == Design Considerations
 
 As mentioned earlier, the process of generating random numbers requires state preservation.
@@ -145,6 +155,8 @@ Therefore, the basic usage of the random number generation function is as follow
 - Call other random number generation functions as needed, using `rng` as input and output parameters.
 
 As long as the value of the initialized `rng` does not change, the result of the random number output is stable and reproducible.
+
+For functions that generate quasi-random sequences like `haltonset`, call it directly using the appropriate parameter values. And the output of the quasi-random sequences is deterministic.
 
 
 == WASM plugin
@@ -660,6 +672,78 @@ Default: #typc-code("true")
 - `arr` #t-any;#t-array: Returned single or array of random samples.
 ]
 
+
+== `haltonset` / `haltonset-f`
+
+Generate a Halton sequence point set.
+
+*Note*: The arguments and functions of `haltonset` and `haltonset-f` are the same.
+
+#heading(bookmarked: false, outlined: false, level: 3, numbering: none)[Parameters]
+
+#fn-block[
+#fn-name[`haltonset`]`(`\
+`  `#t-int`,`\
+`  size:` #t-none;#t-int`,`\
+`  skip:` #t-int`,`\
+`  leap:` #t-int`,`\
+`  permutation:` #t-bool`,`\
+`) -> `#t-float;#t-array
+]
+#fn-block[
+#fn-name[`haltonset-f`]`(`\
+`  `#t-int`,`\
+`  size:` #t-none;#t-int`,`\
+`  skip:` #t-int`,`\
+`  leap:` #t-int`,`\
+`  permutation:` #t-bool`,`\
+`) -> `#t-float;#t-array
+]
+
+#para-block[
+*`dim`* #h(1fr) #t-int #h(1em) #attr-req #h(0.5em) #attr-pos
+
+The number of dimensions in the set, effective value is an integer from [1, 30].
+]
+
+#para-block[
+*`size`* #h(1fr) #t-none #attr-or #t-int #h(1em) #attr-set
+
+The returned points array size, must be `none` or non-negative integer.
+Here `none` means return single point sample (i.e. `size` is 1).
+
+Default: #typc-code("none")
+]
+
+#para-block[
+*`skip`* #h(1fr) #t-int #h(1em) #attr-set
+
+The number of initial points to omit.
+
+Default: #typc-code("0")
+]
+
+#para-block[
+*`leap`* #h(1fr) #t-int #h(1em) #attr-set
+
+The number of points to miss out between returned points.
+
+Default: #typc-code("0")
+]
+
+#para-block[
+*`permutation`* #h(1fr) #t-bool #h(1em) #attr-set
+
+Whether use permutations of coefficients in each of the radical inverse functions.
+
+Default: #typc-code("true")
+]
+
+#para-block[
+*`arr`* #h(1fr) #t-float;#t-array #h(1em) #attr-ret
+
+Returned array of points.
+]
 
 #pagebreak(weak: true)
 
@@ -1425,6 +1509,61 @@ Each such tile has two possible orientations.
     set align(center)
     box(width: 100%, inset: 5pt, stroke: luma(50%),
       eval(codes.text, mode: "markup", scope: (gen-rng-f: gen-rng-f, integers-f: integers-f))
+    )
+  }
+)
+
+Below is two scatter plots of the two dimensions, with uniform pseudorandom numbers and quasi-random Halton sequence, respectively.
+
+#let codes = ```
+#import "@preview/lilaq:0.5.0" as lq
+
+#{
+  let sz = 1024
+  let (width, height) = (190pt,) * 2
+  let rng = gen-rng-f(123)
+  let (rng, x1) = uniform-f(rng, size: sz)
+  let (rng, y1) = uniform-f(rng, size: sz)
+  let arr = haltonset-f(2, size: sz)
+  let x2 = range(sz).map(i => arr.at(i).at(0))
+  let y2 = range(sz).map(i => arr.at(i).at(1))
+
+  lq.diagram(
+    width: width, height: height,
+    title: [*Random (uniform)*],
+    xaxis: (ticks: none), yaxis: (ticks: none),
+    xlim: (0, 1), ylim: (0, 1),
+    lq.scatter(
+      x1, y1,
+      size: (15,)*sz,
+      color: range(sz).map(i => i/sz),
+      map: color.map.cividis
+    )
+  )
+
+  h(20pt)
+
+  lq.diagram(
+    width: width, height: height,
+    title: [*Quasi-Random (Halton)*],
+    xaxis: (ticks: none), yaxis: (ticks: none),
+    xlim: (0, 1), ylim: (0, 1),
+    lq.scatter(
+      x2, y2,
+      size: (15,)*sz,
+      color: range(sz).map(i => i/sz),
+      map: color.map.cividis
+    )
+  )
+}
+```
+
+#grid(align: horizon, gutter: 10pt, columns: 1fr,
+  raw(block: true, lang: "typ", codes.text),
+  {
+    set align(center)
+    box(width: 100%, inset: 5pt, stroke: luma(50%),
+      eval(codes.text, mode: "markup", scope: (gen-rng-f: gen-rng-f, uniform-f: uniform-f, haltonset-f: haltonset-f))
     )
   }
 )
