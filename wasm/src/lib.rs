@@ -83,7 +83,7 @@ fn uniform_int(rng: [u32; 3], n: u32) -> ([u32; 3], u32) {
 fn integers(rng: [u32; 3], sz: u32, low: i64, gap: u32) -> ([u32; 3], Vec<i64>) {
     let mut rng = rng;
     let mut val: u32;
-    let mut a: Vec<i64> = Vec::new();
+    let mut a: Vec<i64> = Vec::with_capacity(sz as usize);
 
     for _ in 0..sz {
         (rng, val) = uniform_int(rng, gap);
@@ -97,7 +97,7 @@ fn integers(rng: [u32; 3], sz: u32, low: i64, gap: u32) -> ([u32; 3], Vec<i64>) 
 fn random(rng: [u32; 3], sz: u32) -> ([u32; 3], Vec<f64>) {
     let mut rng = rng;
     let mut val: f64;
-    let mut a: Vec<f64> = Vec::new();
+    let mut a: Vec<f64> = Vec::with_capacity(sz as usize);
 
     for _ in 0..sz {
         (rng, val) = taus_get_float(rng);
@@ -111,7 +111,7 @@ fn random(rng: [u32; 3], sz: u32) -> ([u32; 3], Vec<f64>) {
 fn uniform(rng: [u32; 3], sz: u32, low: f64, high: f64) -> ([u32; 3], Vec<f64>) {
     let mut rng = rng;
     let mut val: f64;
-    let mut a: Vec<f64> = Vec::new();
+    let mut a: Vec<f64> = Vec::with_capacity(sz as usize);
 
     for _ in 0..sz {
         (rng, val) = taus_get_float(rng);
@@ -128,7 +128,7 @@ fn normal(rng: [u32; 3], sz: u32, loc: f64, scale: f64) -> ([u32; 3], Vec<f64>) 
     let mut x: f64;
     let mut y: f64;
     let mut r2: f64;
-    let mut a: Vec<f64> = Vec::new();
+    let mut a: Vec<f64> = Vec::with_capacity(sz as usize);
 
     for _ in 0..sz {
         loop {
@@ -261,7 +261,7 @@ fn shuffle(rng: [u32; 3], sz: u32) -> ([u32; 3], Vec<u32>) {
 // Generate random samples from a given array (only return array index)
 fn choice(rng: [u32; 3], sz: u32, n: u32, replacement: bool, permutation: bool) -> ([u32; 3], Vec<u32>) {
     let mut rng = rng;
-    let mut a: Vec<u32> = Vec::new();
+    let mut a: Vec<u32> = Vec::with_capacity(sz as usize);
 
     if replacement {    // sample with replacement
         let mut val: u32;
@@ -284,7 +284,7 @@ fn choice(rng: [u32; 3], sz: u32, n: u32, replacement: bool, permutation: bool) 
         if permutation {
             let ai: Vec<u32>;
             (rng, ai) = shuffle(rng, sz);
-            let mut ap: Vec<u32> = Vec::new();
+            let mut ap: Vec<u32> = Vec::with_capacity(sz as usize);
             for i in ai {
                 ap.push(a[i as usize]);
             }
