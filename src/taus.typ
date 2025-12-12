@@ -35,7 +35,6 @@
 // Construct a new random number generator with a seed
 #let taus-set(seed) = {
   let s = seed.bit-and(0xFFFFFFFF)
-  if s == 0 {s = 1}
 
   let s1 = (69069 * s).bit-and(0xFFFFFFFF)
   if (s1 < 2) {s1 += 2}
