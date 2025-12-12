@@ -40,8 +40,7 @@ fn taus_get_float(st: [u32; 3]) -> ([u32; 3], f64) {
 
 // Construct a new random number generator with a seed
 fn taus_set(seed: u32) -> [u32; 3] {
-    let mut s = seed;
-    if s == 0 {s = 1;}
+    let s = seed;
 
     let mut s1 = 69069 * s;
     if s1 < 2 {s1 += 2;}
