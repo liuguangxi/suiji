@@ -1,1 +1,3 @@
 wasm/target
+tests/**/diff
+tests/**/out
