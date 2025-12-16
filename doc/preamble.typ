@@ -2,8 +2,8 @@
 
 
 #let name = "suiji"
-#let version = "0.5.0"
-#let date = "November 2025"
+#let version = "0.5.1"
+#let date = "December 2025"
 #let author = "Guangxi Liu"
 
 #let serif-font = "Minion Pro"

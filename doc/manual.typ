@@ -91,7 +91,7 @@ It has the following features:
 
 To use it, import the latest version of this package with:
 ```typ
-#import "@preview/suiji:0.5.0": *
+#import "@preview/suiji:0.5.1": *
 ```
 This line will be omitted in the examples codes that follows.
 
